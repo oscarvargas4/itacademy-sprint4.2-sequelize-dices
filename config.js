@@ -3,6 +3,7 @@ module.exports = {
         username: "root",
         password: "1234",
         database: "dices",
-        host: "localhost"
+        host: "localhost",
+        port: process.env.PORT
     }
 }
