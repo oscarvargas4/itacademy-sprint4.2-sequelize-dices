@@ -4,9 +4,19 @@ const sequelize = require('./database/db');
 
 const PORT = process.env.PORT || 3000;
 
+// Middleware for fill the req.body
+app.use(express.json());
+app.use(express.urlencoded({
+  extended: false
+}));
+
+// Endpoints
 app.get('/', (req, res) => {
     res.send('Home Page');
 });
+
+// Routes
+app.use('/players', require('./routes/players'));
 
 app.listen(PORT, async function() {
     console.log(`App runining on http://localhost:${PORT}`);
