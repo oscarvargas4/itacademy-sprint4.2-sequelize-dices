@@ -14,6 +14,9 @@ const Game = sequelize.define('Game', {
                 msg: "Maximum value: 12" 
             }
         }
+    },
+    winGame: {
+        type: DataTypes.INTEGER
     }
 });
 

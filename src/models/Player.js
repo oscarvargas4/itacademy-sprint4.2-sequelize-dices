@@ -14,6 +14,9 @@ const Player = sequelize.define('Player', {
                 msg: 'only allow values with length between 3 and 15'
             }
         }
+    },
+    winRate: {
+        type: DataTypes.FLOAT
     }
 });
 
