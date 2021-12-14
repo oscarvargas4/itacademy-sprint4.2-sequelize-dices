@@ -3,6 +3,7 @@ const router = express.Router();
 const sequelize = require('../database/db');
 const Player = require("../models/Player");
 const Game = require('../models/Game');
+const { Op } = require('sequelize');
 
 
 // POST /players: crea un jugador
@@ -13,7 +14,7 @@ router.post("/", async (req, res) => {
         name: "ANONIM"
       });
 
-      res.status(201).send(anonim);
+      res.status(201).json(anonim);
     } catch (error) {
       res.status(400).send(error);
     }
@@ -21,7 +22,7 @@ router.post("/", async (req, res) => {
     try {
       const player = await Player.findOne({ where: { name: req.body.name }});
       if (player) {
-        res.status(400).send("User already exists");
+        res.status(400).json({ "Error":"User already exists" });
       } else {
         const player = await Player.create({
           name: req.body.name,
@@ -50,10 +51,10 @@ router.put("/", async (req, res) => {
       });
 
       if (player === null) {
-        res.status(404).send("User not found");
+        res.status(404).json({ "Error":"User not found" });
       } else {
         await player.update({ name: req.body.newName });
-        res.status(200).send(player);
+        res.status(200).json(player);
       }
     } catch (error) {
       if (error.errors[0].message) {
@@ -65,7 +66,7 @@ router.put("/", async (req, res) => {
   } else {
     res
       .status(400)
-      .send("You must indicate an username & the new username for update");
+      .json({ "Error":"You must indicate an username & the new username for update" });
   }
 });
 
@@ -107,7 +108,7 @@ router.post('/:id/games', async (req, res) => {
       }
     });
 
-    res.status(200).send(game);
+    res.status(200).json(game);
   } catch (error) {
     if (error.name == "SequelizeForeignKeyConstraintError") {
       res.status(400).send("User id not found");
@@ -126,7 +127,7 @@ router.delete('/:id/games', async (req, res) => {
     },
   });
 
-  res.send(`${gamesDeleted} Games deleted for the PlayerId = #${req.params.id}`);
+  res.json({ "Success": `${gamesDeleted} Games deleted for the PlayerId = #${req.params.id}` });
 });
 
 // GET /players: retorna el llistat de tots els jugadors del sistema amb el seu percentatge mig d’èxits
@@ -139,7 +140,7 @@ router.get("/", async (req, res) => {
         'winRate'
       ]
     });
-    res.send(players);
+    res.json(players);
   } catch (error) {
     res.status(400).send(error);
   }
@@ -157,9 +158,9 @@ router.get('/:id/gamesAvg', async (req, res) => {
       }
     });
 
-    res.send(totalValues[0].get({ plain: true }).total_amount);  // https://stackoverflow.com/questions/46380563/get-only-datavalues-from-sequelize-orm
+    res.json(totalValues[0].get({ plain: true }).total_amount);  // https://stackoverflow.com/questions/46380563/get-only-datavalues-from-sequelize-orm
   } catch (error) {
-    res.status(404).send(error);
+    res.status(400).send(error);
   }
 })
 
@@ -172,7 +173,7 @@ router.get('/:id/games', async (req, res) => {
       }
     });
 
-    res.send(totalValues);  // https://stackoverflow.com/questions/46380563/get-only-datavalues-from-sequelize-orm
+    res.json(totalValues);  // https://stackoverflow.com/questions/46380563/get-only-datavalues-from-sequelize-orm
   } catch (error) {
     res.status(404).send(error);
   }
@@ -187,7 +188,7 @@ router.get('/ranking', async (req, res) => {
       ]
     });
 
-    res.send(avgValue);
+    res.json(avgValue);
   } catch (error) {
     res.status(400).send(error);
   }
@@ -198,11 +199,27 @@ router.get('/ranking/loser', async (req, res) => {
   try {
     const minRate = await Player.findAll({
       attributes: [
+        'name',
         [sequelize.fn('MIN', sequelize.col('winRate')), 'loser']
       ]
     });
 
-    res.send(minRate[0].get({ plain: true }));
+    let badestRate = minRate[0].get({ plain: true }).loser;
+
+    let loserR = await Player.findOne({
+      where: {
+        winRate: {
+          [Op.eq]: 0.1429
+        }
+      },
+      raw: true,  // ! The main difference when settingraw to trueis the absence of virtual setters, getters and a bunch of Sequelize data. Refer to the below gist for the difference of output returned.
+                  // https://javascript.plainenglish.io/why-you-should-be-cautious-with-sequelize-raw-options-5aaae9fc3ebd
+    });     
+    
+    res.json(loserR);
+    console.log(typeof badestRate);
+    console.log(typeof 1);
+    // console.log(typeof badestRate);
 
   } catch (error) {
     res.status(400).send(error);
@@ -218,7 +235,7 @@ router.get('/ranking/winner', async (req, res) => {
       ]
     });
 
-    res.send(minRate[0].get({ plain: true }));
+    res.json(minRate[0].get({ plain: true }));
 
   } catch (error) {
     res.status(400).send(error);
