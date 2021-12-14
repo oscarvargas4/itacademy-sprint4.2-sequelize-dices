@@ -73,22 +73,24 @@ router.put("/", async (req, res) => {
 // POST /players/{id}/games: un jugador específic realitza una tirada
 router.post('/:id/games', async (req, res) => {
   try {
-    const dice1 = Math.random() * (6 - 1) + 1;
-    const dice2 = Math.random() * (6 - 1) + 1;
+    const dice1 = Math.floor(Math.random() * (6 - 1) + 1);
+    const dice2 = Math.floor(Math.random() * (6 - 1) + 1);
     const dices = dice1 + dice2;
     let win = 0;
 
     if (Math.round(dices) == 7) {
-      win = 1;
+      win = 100;
     }
 
     const game = await Game.create({
-      gameResult: Math.round(dices),
+      gameResult: dices,
       PlayerId: req.params.id,
-      winGame: win
+      winGame: win,
+      diceOne: dice1,
+      diceTwo: dice2,
     });
 
-    let winRateCalc = await Game.findAll({
+    let winRatePercentageCalc = await Game.findAll({
       attributes: [
         [sequelize.fn('avg', sequelize.col('winGame')), 'averageWin'],
       ],
@@ -97,11 +99,11 @@ router.post('/:id/games', async (req, res) => {
       }
     });
 
-    winRateCalc = winRateCalc[0].get({ plain: true }).averageWin
+    winRatePercentageCalc = winRatePercentageCalc[0].get({ plain: false }).averageWin
 
     await Player.update({
       // ! Sequelize wraps all it's return values in a virtual object that contains meta data. If you have an object and you just want the undecorated data values, you can unwrap them
-      winRate: winRateCalc // ! unwrapping virtual object https://stackoverflow.com/questions/46380563/get-only-datavalues-from-sequelize-orm
+      winRatePercentage: winRatePercentageCalc // ! unwrapping virtual object https://stackoverflow.com/questions/46380563/get-only-datavalues-from-sequelize-orm
     }, {
       where: {
         id: req.params.id
@@ -137,7 +139,7 @@ router.get("/", async (req, res) => {
       attributes: [
         'id',
         'name',
-        'winRate'
+        'winRatePercentage'
       ]
     });
     res.json(players);
@@ -151,14 +153,14 @@ router.get('/:id/gamesAvg', async (req, res) => {
   try {
     const totalValues = await Game.findAll({
       attributes: [
-        [sequelize.fn('AVG', sequelize.col('gameResult')), 'total_amount'],
+        [sequelize.fn('AVG', sequelize.col('gameResult')), 'averageScore'],
       ],
       where : {
         PlayerId: req.params.id
       }
     });
 
-    res.json(totalValues[0].get({ plain: true }).total_amount);  // https://stackoverflow.com/questions/46380563/get-only-datavalues-from-sequelize-orm
+    res.json(totalValues[0].get({ plain: true }));  // https://stackoverflow.com/questions/46380563/get-only-datavalues-from-sequelize-orm
   } catch (error) {
     res.status(400).send(error);
   }
@@ -199,27 +201,20 @@ router.get('/ranking/loser', async (req, res) => {
   try {
     const minRate = await Player.findAll({
       attributes: [
-        'name',
-        [sequelize.fn('MIN', sequelize.col('winRate')), 'loser']
+        [sequelize.fn('MIN', sequelize.col('winRatePercentage')), 'loserRate']
       ]
     });
 
-    let badestRate = minRate[0].get({ plain: true }).loser;
-
-    let loserR = await Player.findOne({
+    let rankingLoser = await Player.findOne({
       where: {
-        winRate: {
-          [Op.eq]: 0.1429
+        winRatePercentage: {
+          [Op.eq]: minRate[0].dataValues.loserRate
         }
       },
-      raw: true,  // ! The main difference when settingraw to trueis the absence of virtual setters, getters and a bunch of Sequelize data. Refer to the below gist for the difference of output returned.
-                  // https://javascript.plainenglish.io/why-you-should-be-cautious-with-sequelize-raw-options-5aaae9fc3ebd
+      raw: true,  // ! The main difference when setting raw to true is the absence of virtual setters, getters and a bunch of Sequelize data https://javascript.plainenglish.io/why-you-should-be-cautious-with-sequelize-raw-options-5aaae9fc3ebd
     });     
     
-    res.json(loserR);
-    console.log(typeof badestRate);
-    console.log(typeof 1);
-    // console.log(typeof badestRate);
+    res.json(rankingLoser);
 
   } catch (error) {
     res.status(400).send(error);
@@ -227,15 +222,24 @@ router.get('/ranking/loser', async (req, res) => {
 });
 
 // GET /players/ranking/winner: retorna el jugador amb millor percentatge d’èxit
+// ! This endpoint is coded without "raw: true" because it was giving null in findOne()
 router.get('/ranking/winner', async (req, res) => {
   try {
-    const minRate = await Player.findAll({
+    const maxRate = await Player.findAll({
       attributes: [
-        [sequelize.fn('MAX', sequelize.col('winRate')), 'winner']
+        [sequelize.fn('MAX', sequelize.col('winRatePercentage')), 'winnerRate']
       ]
     });
 
-    res.json(minRate[0].get({ plain: true }));
+    let rankingWinner = await Player.findOne({
+      where: {
+        winRatePercentage: {
+          [Op.eq]: maxRate[0].dataValues.winnerRate
+        }
+      }
+    });
+
+    res.json(rankingWinner);
 
   } catch (error) {
     res.status(400).send(error);

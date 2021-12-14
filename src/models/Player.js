@@ -15,8 +15,8 @@ const Player = sequelize.define('Player', {
             }
         }
     },
-    winRate: {
-        type: DataTypes.FLOAT
+    winRatePercentage: {
+        type: DataTypes.INTEGER
     }
 });
 

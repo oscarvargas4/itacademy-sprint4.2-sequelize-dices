@@ -17,6 +17,12 @@ const Game = sequelize.define('Game', {
     },
     winGame: {
         type: DataTypes.INTEGER
+    },
+    diceOne: {
+        type: DataTypes.INTEGER
+    },
+    diceTwo: {
+        type: DataTypes.INTEGER
     }
 });
 
