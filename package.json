@@ -4,7 +4,8 @@
   "description": "Dices Game",
   "main": "(src/app.js)",
   "scripts": {
-    "dev": "nodemon src/app.js"
+    "dev": "nodemon src/app.js",
+    "dbCheck": "node src/database/checkDB.js"
   },
   "author": "Oscar Vargas",
   "license": "ISC",
