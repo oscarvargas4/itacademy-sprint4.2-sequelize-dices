@@ -4,32 +4,21 @@
 
 Main structure of node.js project. Folders / files:
 
-- <b>\_\_tests__</b>. Tests folder. See [Jest Docs](https://jestjs.io/es-ES/docs/configuration) and [Chai Docs](https://www.chaijs.com/)
-- <b>app</b>:
-    - <b>config</b>
-    - <b>controllers</b>
-    - <b>crons</b>
-    - <b>middleware</b>
+- <b>postmanTests</b>. Tests folder
+- <b>src</b>:
+    - <b>database</b>
+      - <b>checkDB.js</b>
+      - <b>db.js</b>
     - <b>models</b>
+      - <b>associations.js</b>
+      - <b>Game.js</b>
+      - <b>Player.js</b>
     - <b>routes</b>
-    - <b>tmp</b>
+      - <b>players.js</b>
     - <b>app.js</b>. Entry point.
-- <b>.env</b>. Environment descriptor. See [dotenv doc](https://www.npmjs.com/package/dotenv).
-- <b>.eslintrc</b>. Linter JS, static code analyzer. See [EsLint Docs](https://eslint.org/docs/user-guide/configuring/configuration-files).
-- <b>.prettierignore</b>. Code formatter. See [Prettier Config](https://prettier.io/docs/en/configuration.html) and [Prettier Ignore](https://prettier.io/docs/en/ignore.html).
-- <b>.ecosystem.config.js</b>. Process Manage at runtime. See [PM2 Docs](https://pm2.keymetrics.io/).
+- <b>.gitignore</b>
+- <b>.ecosystem.config.js</b>. Process Manage at runtime. 
 - <b>package.json</b>.
-
-### Import project for use with WebStorm
-
-Follow the steps below:
-* Clone the project from the Github Platform. Execute:
-  ```
-  git clone [url project]
-  ```
-* Open the project downloaded.
-![Open Project](img/webstorm_open.png)
-
 
 ### Import project for use with Visual Studio Code
 
@@ -38,12 +27,24 @@ Follow the steps below:
   ```
   git clone [url project]
   ```
-* Open the project downloaded.
-  ![Open Project](img/VSC_open.png)
 
+### How to run the project:
 
-### Utilities
-
-* [Node Developers Guide](https://nodejs.dev/learn)
-* **.gitignore file** configuration. See [Official Docs](https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files).
-* **Git branches**. See [Official Docs](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell)
+1. Install all `node_modules`:
+  ```
+  npm install
+  ```
+2. Be sure you have installed MySQL and set your MySQL username & password to the file `ecosystem.config.js`:
+  ![Open project](img/ecosystem.png)
+3. Run the command line to check the database `dices` exists:
+  ```
+  npm run dbCheck
+  ```
+4. Run the command line to init the project:
+  ```
+  npm run dev
+  ```
+5. Be sure you have installed Postman for http requests. Import the http requests from the file: `postmanTest`:
+  ![Open project](img/importPostman.png)
+6. Now you are able to make http requests by Postman
+  ![Open project](img/httpRequests.png)
