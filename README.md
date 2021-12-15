@@ -45,6 +45,10 @@ Follow the steps below:
   npm run dev
   ```
 5. Be sure you have installed Postman for http requests. Import the http requests from the file: `postmanTest`:
+
   ![Open project](img/importPostman.png)
+
 6. Now you are able to make http requests by Postman
+
   ![Open project](img/httpRequests.png)
+  
