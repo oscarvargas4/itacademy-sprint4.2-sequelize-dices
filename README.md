@@ -25,7 +25,7 @@ Main structure of node.js project. Folders / files:
 Follow the steps below:
 * Clone the project from the Github Platform. Execute:
   ```
-  git clone [url project]
+  git clone https://github.com/oscarvargas4/sprint4.2-dices.git
   ```
 
 ### How to run the project:
