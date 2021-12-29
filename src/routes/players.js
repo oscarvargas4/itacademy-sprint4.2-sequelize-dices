@@ -49,11 +49,20 @@ router.put("/", async (req, res) => {
         },
       });
 
-      if (player === null) {
+      if (!player) {
         res.status(404).json({ Error: "User not found" });
       } else {
-        await player.update({ name: req.body.newName });
-        res.status(200).json(player);
+        const newName = await Player.findOne({
+          where: {
+            name: req.body.newName,
+          },
+        });
+        if (!newName) {
+          await player.update({ name: req.body.newName });
+          res.status(200).json(player);
+        } else {
+          res.status(400).json({ Error: "User already exists" });
+        }
       }
     } catch (error) {
       if (error.errors[0].message) {
@@ -63,16 +72,15 @@ router.put("/", async (req, res) => {
       }
     }
   } else {
-    res
-      .status(400)
-      .json({
-        Error: "You must indicate an username & the new username for update",
-      });
+    res.status(400).json({
+      Error: "You must indicate an username & the new username for update",
+    });
   }
 });
 
 // POST /players/{id}/games: un jugador específic realitza una tirada
-router.post("/:id/games", async (req, res) => { // TODO Non-existent user
+router.post("/:id/games", async (req, res) => {
+  // TODO Non-existent user
   try {
     const dice1 = Math.floor(Math.random() * (6 - 1) + 1);
     const dice2 = Math.floor(Math.random() * (6 - 1) + 1);
@@ -127,7 +135,8 @@ router.post("/:id/games", async (req, res) => { // TODO Non-existent user
 });
 
 // DELETE /players/{id}/games: elimina les tirades del jugador
-router.delete("/:id/games", async (req, res) => { // TODO Delete non-existent Player
+router.delete("/:id/games", async (req, res) => {
+  // TODO Delete non-existent Player
   try {
     const gamesDeleted = await Game.destroy({
       where: {
@@ -140,7 +149,6 @@ router.delete("/:id/games", async (req, res) => { // TODO Delete non-existent Pl
     });
   } catch (error) {
     res.status(400).send(error);
-    
   }
 });
 
@@ -158,7 +166,8 @@ router.get("/", async (req, res) => {
 });
 
 // Read Games with average
-router.get("/:id/gamesAvg", async (req, res) => {  // TODO Non-existent Player
+router.get("/:id/gamesAvg", async (req, res) => {
+  // TODO Non-existent Player
   try {
     let totalValues = await Game.findAll({
       attributes: [
