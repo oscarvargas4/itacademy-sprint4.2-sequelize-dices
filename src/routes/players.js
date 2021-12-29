@@ -72,7 +72,7 @@ router.put("/", async (req, res) => {
 });
 
 // POST /players/{id}/games: un jugador específic realitza una tirada
-router.post("/:id/games", async (req, res) => {
+router.post("/:id/games", async (req, res) => { // TODO Non-existent user
   try {
     const dice1 = Math.floor(Math.random() * (6 - 1) + 1);
     const dice2 = Math.floor(Math.random() * (6 - 1) + 1);
@@ -127,7 +127,7 @@ router.post("/:id/games", async (req, res) => {
 });
 
 // DELETE /players/{id}/games: elimina les tirades del jugador
-router.delete("/:id/games", async (req, res) => {
+router.delete("/:id/games", async (req, res) => { // TODO Delete non-existent Player
   try {
     const gamesDeleted = await Game.destroy({
       where: {
@@ -158,7 +158,7 @@ router.get("/", async (req, res) => {
 });
 
 // Read Games with average
-router.get("/:id/gamesAvg", async (req, res) => {
+router.get("/:id/gamesAvg", async (req, res) => {  // TODO Non-existent Player
   try {
     let totalValues = await Game.findAll({
       attributes: [
@@ -175,7 +175,7 @@ router.get("/:id/gamesAvg", async (req, res) => {
   }
 });
 
-// GET /players/{id}/games: retorna el llistat de jugades per un jugador.
+// GET /players/{id}/games: retorna el llistat de jugades per un jugador. // TODO Non existent user
 router.get("/:id/games", async (req, res) => {
   try {
     const totalValues = await Game.findAll({
